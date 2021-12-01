@@ -8,6 +8,7 @@
 use Modern::Perl '2015';
 
 # useful modules
+use List::Util qw/reduce/;
 use Test::More;
 use Time::HiRes qw/gettimeofday tv_interval/;
 sub sec_to_hms;
@@ -23,17 +24,16 @@ while (<$fh>) { chomp; s/\r//gm; push @input, $_; }
 
 ### CODE
 my %ans;
-for my $idx ( 1 .. $#input ) {
 
-    if ( $input[$idx] > $input[ $idx - 1 ] ) {
-        $ans{1}++;
-    }
+# use `reduce` here just because we can
+my $res = reduce {
+    if ( $b > $a ) { $ans{1}++ }
+    $b
+} @input;
 
-    # only compare the ends of each "window" as the middles are shared
-    if ( $idx <= $#input - 2 and ( $input[ $idx + 2 ] > $input[ $idx - 1 ] ) )
-    {
-        $ans{2}++;
-    }
+# only compare the ends of each "window" as the middles are shared
+for my $idx ( 1 .. $#input - 2 ) {
+    $ans{2}++ if ( $input[ $idx + 2 ] > $input[ $idx - 1 ] );
 }
 
 ### FINALIZE - tests and run time
