@@ -25,15 +25,16 @@ while (<$fh>) { chomp; s/\r//gm; push @input, $_; }
 ### CODE
 my %ans;
 
-# use `reduce` here just because we can
+# Part 1: use `reduce` here just because we can
 my $res = reduce {
     if ( $b > $a ) { $ans{1}++ }
     $b
 } @input;
 
-# only compare the ends of each "window" as the middles are shared
-for my $idx ( 1 .. $#input - 2 ) {
-    $ans{2}++ if ( $input[ $idx + 2 ] > $input[ $idx - 1 ] );
+# Part 2: our requirement: d[i]+d[i+1]+d[i+2] < d[i+1]+d[i+2]+d[i+3]
+#         this reduces to:             d[i+3] > d[i]
+for my $idx ( 0 .. $#input - 3 ) {
+    $ans{2}++ if ( $input[ $idx + 3 ] > $input[ $idx  ] );
 }
 
 ### FINALIZE - tests and run time
