@@ -1,7 +1,7 @@
 #! /usr/bin/env perl
 # Advent of Code 2021 Day 1 - Sonar Sweep - complete solution
 # Problem link: https://adventofcode.com/2021/day/1
-#   Discussion: https://gerikson.com/blog/comp/Advent-of-Code-2021.html#d01
+#   Discussion: https://gerikson.com/blog/comp/adventofcode/Advent-of-Code-2021.html#d01
 #      License: https://gerikson.com/files/AoC2021/UNLICENSE
 ###########################################################
 

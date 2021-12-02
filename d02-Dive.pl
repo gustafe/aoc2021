@@ -1,7 +1,7 @@
 #! /usr/bin/env perl
 # Advent of Code 2021 Day 2 - Dive! - complete solution
 # Problem link: https://adventofcode.com/2021/day/2
-#   Discussion: https://gerikson.com/blog/comp/Advent-of-Code-2021.html#d02
+#   Discussion: https://gerikson.com/blog/comp/adventofcode/Advent-of-Code-2021.html#d02
 #      License: https://gerikson.com/files/AoC2021/UNLICENSE
 ###########################################################
 use Modern::Perl '2015';
