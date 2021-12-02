@@ -26,6 +26,8 @@ while (<$fh>) { chomp; s/\r//gm; push @input, $_; }
 my %ans;
 
 # Part 1: use `reduce` here just because we can
+# $a and $b are set to the initial entries in the list, then $a is set
+# to the result. So we return $b last
 my $res = reduce {
     if ( $b > $a ) { $ans{1}++ }
     $b
@@ -44,12 +46,7 @@ done_testing();
 say sec_to_hms( tv_interval($start_time) );
 
 ### SUBS
-sub sec_to_hms {
-    my ($s) = @_;
-    return sprintf(
-        "Duration: %02dh%02dm%02ds (%.3f ms)",
-        int( $s / ( 60 * 60 ) ),
-        ( $s / 60 ) % 60,
-        $s % 60, $s * 1000
-    );
+sub sec_to_hms { my ($s) = @_;
+    return sprintf("Duration: %02dh%02dm%02ds (%.3f ms)",
+    int($s/(60*60)),($s/60)%60,$s%60,$s*1000);
 }
