@@ -18,50 +18,18 @@ my $testing = 0;
 my @input;
 my $file = $testing ? 'test.txt' : 'input.txt';
 open( my $fh, '<', "$file" );
-while (<$fh>) { chomp; s/\r//gm; push @input, $_; }
-
-### CODE
 my @data;
 my %freq;
-for my $line (@input) {
-    my @values = split( //, $line );
+
+while (<$fh>) {
+    chomp; s/\r//gm;
+    my @values = split(//, $_);
     push @data, \@values;
     map { $freq{$_}->{ $values[$_] }++ } ( 0 .. $#values );
 }
 
-sub filter_by_index_and_type {
-    my ( $idx, $type, $filter ) = @_;
-    my $new_filter;
-    my @col;
-    # select those rows that match the incoming filter
-    for my $i ( keys %$filter ) {
-        push @col, $data[$i]->[$idx];
-    }
-    # select number of 1s and 0s
-    my @vals;
-    $vals[0] = grep { $_ == 0 } @col;
-    $vals[1] = grep { $_ == 1 } @col;
-    my $common;
-    if ( $type eq 'oxy' ) {
-        $common = $vals[1] >= $vals[0] ? 1 : 0;
-    }
-    elsif ( $type eq 'cdx' ) {
-        $common = $vals[0] <= $vals[1] ? 0 : 1;
-    }
-    else {
-        die "unknown type: $type";
-    }
-    if ( scalar keys %$filter == 1 ) {
-        return $filter;
-    }
-    else { # construct a new filter based on common values 
-        map { $new_filter->{$_}++ if $data[$_][$idx] == $common }
-            keys %$filter;
-    }
-
-    return $new_filter;
-}
-
+### CODE
+sub filter_by_index_and_type;
 ## Part 1
 
 my ( $𝛾, $ε );
@@ -98,6 +66,38 @@ done_testing();
 say sec_to_hms( tv_interval($start_time) );
 
 ### SUBS
+sub filter_by_index_and_type {
+    my ( $idx, $type, $filter ) = @_;
+    my $new_filter;
+    my @col;
+    # select those rows that match the incoming filter
+    for my $i ( keys %$filter ) {
+        push @col, $data[$i]->[$idx];
+    }
+    # select number of 1s and 0s
+    my @vals;
+    $vals[0] = grep { $_ == 0 } @col;
+    $vals[1] = grep { $_ == 1 } @col;
+    my $common;
+    if ( $type eq 'oxy' ) {
+        $common = $vals[1] >= $vals[0] ? 1 : 0;
+    }
+    elsif ( $type eq 'cdx' ) {
+        $common = $vals[0] <= $vals[1] ? 0 : 1;
+    }
+    else {
+        die "unknown type: $type";
+    }
+    if ( scalar keys %$filter == 1 ) {
+        return $filter;
+    }
+    else { # construct a new filter based on common values 
+        map { $new_filter->{$_}++ if $data[$_][$idx] == $common }
+            keys %$filter;
+    }
+
+    return $new_filter;
+}
 sub sec_to_hms {  
     my ($s) = @_;
     return sprintf("Duration: %02dh%02dm%02ds (%.3f ms)",
