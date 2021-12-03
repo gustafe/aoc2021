@@ -36,17 +36,15 @@ sub filter_by_index {
     my $new_cdx;
 
     # oxygen values, columns that have the most common values are to be kept
-    my %set;
+    my @col;
     for my $i ( keys %$oxy ) {
-        $set{ $data[$i]->[$idx] }++;
+        push @col, $data[$i]->[$idx];
     }
     my $most_common;
-    if ( $set{1} >= $set{0} ) {
-        $most_common = 1;
-    }
-    elsif ( $set{0} > $set{1} ) {
-        $most_common = 0;
-    }
+    my @vals;
+    $vals[0] = grep { $_ == 0 } @col;
+    $vals[1] = grep { $_ == 1 } @col;
+    $most_common = $vals[1] >= $vals[0] ? 1 : 0;
     if ( scalar keys %$oxy == 1 ) {
         $new_oxy = $oxy;
     }
@@ -60,19 +58,15 @@ sub filter_by_index {
 
     # C02: columns with the least common values are to be kept
 
-    %set = ();
+    @col = ();
     for my $i ( keys %$cdx ) {
-        $set{ $data[$i]->[$idx] }++;
+        push @col, $data[$i]->[$idx];
     }
 
     my $least_common;
-    if ( $set{1} < $set{0} ) {
-        $least_common = 1;
-    }
-    elsif ( $set{0} <= $set{1} ) {
-        $least_common = 0;
-    }
-
+    $vals[0] = grep { $_ == 0 } @col;
+    $vals[1] = grep { $_ == 1 } @col;
+    $least_common = $vals[0] <= $vals[1] ? 0 : 1;
     if ( scalar keys %$cdx == 1 ) {
         $new_cdx = $cdx;
     }
