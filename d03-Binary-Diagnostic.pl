@@ -8,6 +8,7 @@ use Modern::Perl '2015';
 # useful modules
 use Test::More;
 use Time::HiRes qw/gettimeofday tv_interval/;
+use utf8;
 sub sec_to_hms;
 
 my $start_time = [gettimeofday];
@@ -49,11 +50,7 @@ sub filter_by_index {
         $new_oxy = $oxy;
     }
     else {
-        for my $id ( keys %$oxy ) {
-            if ( $data[$id]->[$idx] == $most_common ) {
-                $new_oxy->{$id}++;
-            }
-        }
+	map {$new_oxy->{$_}++ if $data[$_][$idx]==$most_common } keys %$oxy;
     }
 
     # C02: columns with the least common values are to be kept
@@ -71,29 +68,25 @@ sub filter_by_index {
         $new_cdx = $cdx;
     }
     else {
-        for my $id ( keys %$cdx ) {
-            if ( $data[$id]->[$idx] == $least_common ) {
-                $new_cdx->{$id}++;
-            }
-        }
+	map {$new_cdx->{$_}++ if $data[$_][$idx]==$least_common} keys %$cdx;
     }
 
     return [ $new_oxy, $new_cdx ];
 }
 ## Part 1
 
-my ( $gamma, $epsilon );
+my ( $𝛾, $ε );
 for my $i ( 0 .. ( scalar keys %freq ) - 1 ) {
     if ( $freq{$i}->{0} > $freq{$i}->{1} ) {
-        $gamma   .= 0;
-        $epsilon .= 1;
+        $𝛾 .= 0;
+        $ε .= 1;
     }
     elsif ( $freq{$i}->{1} > $freq{$i}->{0} ) {
-        $gamma   .= 1;
-        $epsilon .= 0;
+        $𝛾 .= 1;
+        $ε .= 0;
     }
 }
-my $part1 = oct( "0b" . $gamma ) * oct( "0b" . $epsilon );
+my $part1 = oct( "0b" . $𝛾 ) * oct( "0b" . $ε );
 ## Part 2
 
 # initial setup, mark all rows as valid
