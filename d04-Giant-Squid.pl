@@ -51,6 +51,7 @@ for my $chunk (@input) {
 }
 sub calculate_board;
 sub dump_board;
+# initialize the %has_won hash with zeros
 my %has_won = map { $_ => 0 } keys %boards;
 while (@draws) {
     my $draw = shift @draws;
@@ -62,7 +63,6 @@ while (@draws) {
             }
         }
     }
-BOARDS:
     for my $board ( keys %boards ) {
 
         # check rows
@@ -90,21 +90,22 @@ BOARDS:
         }
 
     }
+    # what is the number of wins? 
     my %reverse = reverse %has_won;
-
+    # either 1 or 0 wins == first board
     if ( scalar keys %reverse == 2 and exists $reverse{1} ) {
         say "First board to win: draw $draw led to win on " . $reverse{1};
         $ans{1} = $draw * calculate_board( $reverse{1} );
 
     }
+    # every board has won at least once
     elsif ( !exists $reverse{0} ) {
-
+	# get the board with least wins (and hope it's unique)
         my $last_won
             = ( sort { $has_won{$a} <=> $has_won{$b} } keys %has_won )[0];
         say "Final board to win: draw $draw led to win on " . $last_won;
         $ans{2} = $draw * calculate_board($last_won);
         last;
-
     }
 }
 
@@ -144,7 +145,7 @@ sub dump_board {
             my $num = $boards{$b}{$r}{$c}{number};
             my $string;
             if ( $boards{$b}{$r}{$c}{marked} ) {
-                $string = "($num)";
+                $string = "[$num]";
             }
             else {
                 $string = $num;
