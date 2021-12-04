@@ -62,8 +62,6 @@ while (@draws) {
             }
         }
     }
-    my $win       = 0;
-    my $board_val = 0;
 BOARDS:
     for my $board ( keys %boards ) {
 
@@ -74,8 +72,7 @@ BOARDS:
                 $marked_count++ if $boards{$board}{$row}{$col}{marked};
             }
             if ( $marked_count == 5 ) {
-                $win = $board;
-                $has_won{$board}++;
+                 $has_won{$board}++;
             }
 
         }
@@ -87,8 +84,7 @@ BOARDS:
                 $marked_count++ if $boards{$board}{$row}{$col}{marked};
             }
             if ( $marked_count == 5 ) {
-                $win = $board;
-                $has_won{$board}++;
+                 $has_won{$board}++;
             }
 
         }
