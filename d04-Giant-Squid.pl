@@ -35,16 +35,16 @@ for my $chunk (@input) {
     }
     else {
         my @rows  = split( /\n/, $chunk );
-        my $rownr = 1;
+        my $row = 1;
         for my $r (@rows) {
             my @cols  = split( " ", $r );
-            my $colnr = 1;
+            my $col = 1;
             for my $number (@cols) {
-                $boards{$count}{$rownr}{$colnr} = { number => $number };
-                $positions{$number}{$count}{$rownr}{$colnr} = 1;
-                $colnr++;
+                $boards{$count}{$row}{$col} = { number => $number };
+                $positions{$number}{$count}{$row}{$col} = 1;
+                $col++;
             }
-            $rownr++;
+            $row++;
         }
     }
     $count++;
@@ -53,17 +53,22 @@ sub calculate_board;
 sub dump_board;
 # initialize the %has_won hash with zeros
 my %has_won = map { $_ => 0 } keys %boards;
+my %visited= ();
 while (@draws) {
     my $draw = shift @draws;
-
     for my $board ( keys %{ $positions{$draw} } ) {
+	$visited{$board}++;
         for my $row ( keys %{ $positions{$draw}{$board} } ) {
             for my $col ( keys %{ $positions{$draw}{$board}{$row} } ) {
                 $boards{$board}{$row}{$col}{marked}++;
             }
         }
     }
-    for my $board ( keys %boards ) {
+    # use the %visited hash to only scan those boards that have had a
+    #number marked
+    # this was implemented as an optimization but it does not seem to
+    # do much
+    for my $board (keys %visited ) { 
 
         # check rows
         for my $row ( 1 .. 5 ) {
@@ -74,7 +79,6 @@ while (@draws) {
             if ( $marked_count == 5 ) {
                  $has_won{$board}++;
             }
-
         }
 
         # check columns
@@ -86,13 +90,11 @@ while (@draws) {
             if ( $marked_count == 5 ) {
                  $has_won{$board}++;
             }
-
         }
-
     }
     # what is the number of wins? 
     my %reverse = reverse %has_won;
-    # either 1 or 0 wins == first board
+    # either only 1 or 0 wins == first board
     if ( scalar keys %reverse == 2 and exists $reverse{1} ) {
         say "First board to win: draw $draw led to win on " . $reverse{1};
         $ans{1} = $draw * calculate_board( $reverse{1} );
