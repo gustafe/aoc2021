@@ -1,5 +1,4 @@
 #! /usr/bin/env perl
-#! /usr/bin/env perl
 # Advent of Code 2021 Day 5 - Hydrothermal Venture - complete solution
 # https://adventofcode.com/2021/day/5
 # https://gerikson.com/blog/comp/adventofcode/Advent-of-Code-2021.html#d05
