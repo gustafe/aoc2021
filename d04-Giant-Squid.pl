@@ -129,12 +129,12 @@ sub sec_to_hms {
 }
 
 sub calculate_board {
-    my ($board) = @_;
+    my ($b) = @_;
     my $sum = 0;
-    for my $row ( keys %{ $boards{$board} } ) {
-        for my $col ( keys %{ $boards{$board}{$row} } ) {
-            $sum += $boards{$board}{$row}{$col}{number}
-                unless $boards{$board}{$row}{$col}{marked};
+    for my $r ( keys %{ $boards{$b} } ) {
+        for my $c ( keys %{ $boards{$b}{$r} } ) {
+            $sum += $boards{$b}{$r}{$c}{number}
+                unless $boards{$b}{$r}{$c}{marked};
         }
     }
     return $sum;
