@@ -7,6 +7,7 @@
 use Modern::Perl '2015';
 
 # useful modules
+use List::Util qw/max/;
 use Test::More;
 use Time::HiRes qw/gettimeofday tv_interval/;
 use Math::Trig;
@@ -45,17 +46,18 @@ for my $in (@input) {
 #dump %freq;
 my $Map;
 sub dump_map;
-sub E; sub W; sub N; sub S;
-sub NE;sub NW;sub SE;sub SW;
-my %paint = ( 0 => \&E , 180 => \&W , 90 => \&S ,270 => \&N,
-	     45 => \&SE, 135 => \&SW,315 => \&NE,225 => \&NW );
+sub paint;
 
+# note we are dealing with a coordinate system that is "flipped"
+# around the X-axis. Positive Y points down
+my %vectors = ( 0=>[ 1, 0], 180=>[-1, 0],  90=>[ 0, 1], 270=>[ 0, -1],
+	       45=>[ 1, 1], 135=>[-1, 1], 315=>[ 1,-1], 225=>[-1,- 1]);
 my %part1_dirs = ( 0 => 1, 90 => 1, 180 => 1, 270 => 1 );
 
 for my $L (@lines) {
     my $dir = $L->{dir};
     if ( !$part2 and !exists $part1_dirs{$dir} ) {next}
-    $paint{$dir}->($L);
+    paint( $L );
 }
 
 my $count;
@@ -64,6 +66,7 @@ for my $x ( keys %$Map ) {
         $count++ if $Map->{$x}{$y} >= 2;
     }
 }
+dump_map if $testing;
 my $ans = $count;
 if ($part2) {
     is( $ans, 18442, "Part 2: $ans" );
@@ -85,72 +88,12 @@ sub sec_to_hms {
         $s % 60, $s * 1000
     );
 }
-
-sub E {
+sub paint {
     my ($L) = @_;
-    my $steps = abs( $L->{x2} - $L->{x1} );
+    my $steps = max( abs( $L->{x2} - $L->{x1} ), abs( $L->{y2} - $L->{y1} ) );
     for ( my $i = 0; $i <= $steps; $i++ ) {
-        $Map->{ $L->{x1} + $i }{ $L->{y1} }++;
-    }
-}
-
-sub W {
-    my ($L) = @_;
-    my $steps = abs( $L->{x2} - $L->{x1} );
-    for ( my $i = 0; $i <= $steps; $i++ ) {
-        $Map->{ $L->{x1} - $i }{ $L->{y1} }++;
-    }
-}
-
-sub N {
-    my ($L) = @_;
-    my $steps = abs( $L->{y2} - $L->{y1} );
-    for ( my $i = 0; $i <= $steps; $i++ ) {
-        $Map->{ $L->{x1} }{ $L->{y1} - $i }++;
-    }
-}
-
-sub S {
-    my ($L) = @_;
-    my $steps = abs( $L->{y2} - $L->{y1} );
-    for ( my $i = 0; $i <= $steps; $i++ ) {
-        $Map->{ $L->{x1} }{ $L->{y1} + $i }++;
-    }
-}
-
-sub NE {
-    my ($L) = @_;
-    my ( $x, $y ) = ( $L->{x1}, $L->{y1} );
-    my $steps = abs( $L->{x2} - $L->{x1} );
-    for ( my $i = 0; $i <= $steps; $i++ ) {
-        $Map->{ $L->{x1} + $i }{ $L->{y1} - $i }++;
-    }
-}
-
-sub NW {
-    my ($L) = @_;
-    my ( $x, $y ) = ( $L->{x1}, $L->{y1} );
-    my $steps = abs( $L->{x2} - $L->{x1} );
-    for ( my $i = 0; $i <= $steps; $i++ ) {
-        $Map->{ $L->{x1} - $i }{ $L->{y1} - $i }++;
-    }
-}
-
-sub SE {
-    my ($L) = @_;
-    my ( $x, $y ) = ( $L->{x1}, $L->{y1} );
-    my $steps = abs( $L->{x2} - $L->{x1} );
-    for ( my $i = 0; $i <= $steps; $i++ ) {
-        $Map->{ $L->{x1} + $i }{ $L->{y1} + $i }++;
-    }
-}
-
-sub SW {
-    my ($L) = @_;
-    my ( $x, $y ) = ( $L->{x1}, $L->{y1} );
-    my $steps = abs( $L->{x2} - $L->{x1} );
-    for ( my $i = 0; $i <= $steps; $i++ ) {
-        $Map->{ $L->{x1} - $i }{ $L->{y1} + $i }++;
+        $Map->{ $L->{x1} + $i * $vectors{ $L->{dir} }->[0] }
+            ->{ $L->{y1} + $i * $vectors{ $L->{dir} }->[1] }++;
     }
 }
 
