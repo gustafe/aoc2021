@@ -47,12 +47,8 @@ my $ans = 0;
 for my $cohort ( keys %generations ) {
     $ans += $generations{$cohort};
 }
-if ($part2) {
-    is( $ans, 1617359101538, "Part 2: $ans" );
-}
-else {
-    is( $ans, 356190, "Part 1: $ans" );
-}
+if ($part2) { is( $ans, 1617359101538, "Part 2: $ans" ) }
+       else { is( $ans,        356190, "Part 1: $ans" ) }
 ### FINALIZE - tests and run time
 # is();
 done_testing();

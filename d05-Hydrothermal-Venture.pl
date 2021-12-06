@@ -37,7 +37,8 @@ for my $in (@input) {
     my $norm_x = $x2 - $x1;
     my $norm_y = $y2 - $y1;
     my $dir    = rad2deg( atan2( $norm_y, $norm_x ) );
-
+    # normalize degrees to between 0 and 360, because we want to use
+    # them as hash keys and negative values don't work there
     $dir = $dir < 0 ? 360 + $dir : $dir;
     $freq{$dir}++;
     push @lines, {x1 => $x1, y1 => $y1, x2 => $x2, y2 => $y2, dir => $dir};
@@ -68,12 +69,8 @@ for my $x ( keys %$Map ) {
 }
 dump_map if $testing;
 my $ans = $count;
-if ($part2) {
-    is( $ans, 18442, "Part 2: $ans" );
-}
-else {
-    is( $ans, 4745, "Part 1: $ans" );
-}
+if ($part2) { is( $ans, 18442, "Part 2: $ans" ) }
+       else { is( $ans,  4745, "Part 1: $ans" ) }
 
 done_testing;
 say sec_to_hms( tv_interval($start_time) );
