@@ -33,7 +33,7 @@ my $average = ( sum @positions ) / scalar @positions;
 # case these values are the solutions for part 1 and part 2
 # respectively
 
-my %ans = ( 1 => 100_000_000, 2 => 100_000_000 );
+my %ans = ( 1 => 1e10, 2 => 10e10 );
 for my $t (min($median, int $average) - 5 .. max($median, int $average) + 5) {
     my $res = cost_per_position($t);
     # check if result is smaller than what we already have
