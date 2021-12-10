@@ -7,8 +7,7 @@
 use Modern::Perl '2015';
 
 # useful modules
-use List::Util qw/sum all/;
-use Data::Dump qw/dump/;
+use List::Util qw/all product/;
 use Test::More;
 use Time::HiRes qw/gettimeofday tv_interval/;
 sub sec_to_hms;
@@ -26,6 +25,10 @@ while (<$fh>) { chomp; s/\r//gm; push @input, $_; }
 my $Map;
 my $id = 0;
 my $Basins;
+
+# We use a hash-of-hashes construct for the map, because it makes
+# checking the boundaries much easier
+
 my $r = 1;
 for my $line (@input) {
     my $c = 1;
@@ -36,17 +39,22 @@ for my $line (@input) {
     $r++;
 }
 
-#dump $Map;
 my $risk = 0;
-for my $r ( sort { $a <=> $b } keys %$Map ) {
-    for my $c ( sort { $a <=> $b } keys %{ $Map->{$r} } ) {
+
+# Part 1: search for low points and calculate the total risk level
+for my $r ( keys %$Map ) {
+    for my $c ( keys %{ $Map->{$r} } ) {
         my @neighbors;
         for my $d ( [ -1, 0 ], [ 1, 0 ], [ 0, -1 ], [ 0, 1 ] ) {
-            if ( defined $Map->{ $r + $d->[0] }{ $c + $d->[1] } ) {
-                push @neighbors, $Map->{ $r + $d->[0] }{ $c + $d->[1] }->{val};
+            my ( $dr, $dc ) = ( $r + $d->[0], $c + $d->[1] );
+            if ( defined $Map->{$dr}{$dc} ) {
+                push @neighbors, $Map->{$dr}{$dc}->{val};
             }
         }
         if ( all { $Map->{$r}{$c}->{val} < $_ } @neighbors ) {
+
+            # we have a low point, give it an ID and add it to the
+            # list of locations
             ++$id;
             $Basins->{$id} = { r => $r, c => $c };
             $Map->{$r}{$c}->{id} = $id;
@@ -54,41 +62,48 @@ for my $r ( sort { $a <=> $b } keys %$Map ) {
         }
     }
 }
+
+# starting at each low point, find the area that drains to it
 for my $id ( keys %$Basins ) {
+
+    # we use BFS
     my @queue = ( [ $Basins->{$id}{r}, $Basins->{$id}{c} ] );
     while (@queue) {
         my $cur = shift @queue;
         for my $d ( [ -1, 0 ], [ 1, 0 ], [ 0, -1 ], [ 0, 1 ] ) {
-            my $move = [ $cur->[0] + $d->[0], $cur->[1] + $d->[1] ];
-            if ( defined $Map->{ $move->[0] }{ $move->[1] } ) {
-                if ( $Map->{ $move->[0] }{ $move->[1] }{val}
+            my ( $dr, $dc ) = ( $cur->[0] + $d->[0], $cur->[1] + $d->[1] );
+
+            if ( defined $Map->{$dr}{$dc} ) {
+
+                # a point is in the basin if it is
+                # - strictly higher than a neighbor
+                # - not == 9
+                # - not already marked as visited
+
+                if ( $Map->{$dr}{$dc}{val}
                         > $Map->{ $cur->[0] }{ $cur->[1] }{val}
-                    and $Map->{ $move->[0] }{ $move->[1] }{val} != 9
-                    and !defined( $Map->{ $move->[0] }{ $move->[1] }{id} ) )
+                    and $Map->{$dr}{$dc}{val} != 9
+                    and !defined( $Map->{$dr}{$dc}{id} ) )
                 {
-                    $Map->{ $move->[0] }{ $move->[1] }{id} = $id;
-                    push @queue, $move;
+                    $Map->{$dr}{$dc}{id} = $id;
+                    push @queue, [ $dr, $dc ];
                 }
             }
         }
     }
 }
-my %data;
+my %sizes;
 for my $r ( keys %$Map ) {
     for my $c ( keys %{ $Map->{$r} } ) {
         if ( $Map->{$r}{$c}{id} ) {
-            $data{ $Map->{$r}{$c}{id} }++;
+            $sizes{ $Map->{$r}{$c}{id} }++;
         }
     }
 }
-my $prod  = 1;
-my $count = 1;
-for my $id ( sort { $data{$b} <=> $data{$a} } keys %data ) {
-    next if $count > 3;
-    $prod *= $data{$id};
 
-    $count++;
-}
+# This horror is just to extract the values of the top basins by size
+my $prod = product( map { $sizes{$_} }
+        ( sort { $sizes{$b} <=> $sizes{$a} } keys %sizes )[ 0 .. 2 ] );
 ### FINALIZE - tests and run time
 if ($testing) {
     is( $risk, 15,   "Part 1: $risk" );
