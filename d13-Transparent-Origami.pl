@@ -87,7 +87,7 @@ my $digest = dump_map;
 
 ### FINALIZE - tests and run time
 is($ans{1}, 753, "Part 1: ".$ans{1});
-is( $digest, '000000110111110111000000011100011010010110001110000000111110111110111110000000010110010110011110000000110111110111000000111101111110011110000001000000011011011001100110000000110111101001011110', "Part 2 OK");
+is( $digest, 1536, "Part 2 OK");
 
 done_testing();
 say sec_to_hms( tv_interval($start_time) );
@@ -115,10 +115,12 @@ sub dump_map {
     }
     my @rows;
     for my $r ( sort { $a <=> $b } keys %$Map ) {
+	my $digits;
         for my $c ( 0 .. $max_y ) {
             $output->[$c][$r] = $Map->{$r}{$c} ? '█' : '.';
-	    $digest .= $Map->{$r}{$c}?0:1;
+	    $digits .= $Map->{$r}{$c}?0:1;
         }
+	$digest += ord( '0b'.$digits);
     }
     for my $r (0..(scalar @$output)-1) {
         say join( '', map { $_ ? $_ : '|' } @{$output->[$r]} );
