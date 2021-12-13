@@ -39,7 +39,6 @@ for my $line (@input) {
 #dump_map;
 my $step = 1;
 
-my $LIMIT       = 200;
 my $flash_count = 0;
 my $has_synced  = 0;
 while ( !$has_synced ) {
