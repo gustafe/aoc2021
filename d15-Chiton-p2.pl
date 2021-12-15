@@ -79,7 +79,6 @@ while ( $pq->peek ) {
     for my $d ( [ -1, 0 ], [ 0, -1 ], [ 1, 0 ], [ 0, 1 ] ) {
         my $dr        = $cur->[0] + $d->[0];
         my $dc        = $cur->[1] + $d->[1];
-        my $manhattan = abs( $goal->[0] - $dr ) + abs( $goal->[1] + $dc );
         next unless exists $Map->{$dr}{$dc};
         my $cur_cost = $cost_so_far->{ $cur->[0] }{ $cur->[1] };
         my $new_cost = $cur_cost + $Map->{$dr}{$dc};
@@ -88,7 +87,7 @@ while ( $pq->peek ) {
             or $new_cost < $cost_so_far->{$dr}{$dc} )
         {
             $cost_so_far->{$dr}{$dc} = $new_cost;
-            $pq->add( [ $dr, $dc ], $new_cost + $manhattan );
+	    $pq->add( [ $dr, $dc ], $new_cost);
         }
     }
 }
