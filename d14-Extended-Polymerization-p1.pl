@@ -4,12 +4,9 @@
 # https://gerikson.com/blog/comp/adventofcode/Advent-of-Code-2021.html#d14
 # https://gerikson.com/files/AoC2021/UNLICENSE
 ###########################################################
-
 use Modern::Perl '2015';
 
 # useful modules
-use List::Util qw/sum/;
-use Data::Dump qw/dump/;
 use Test::More;
 use Time::HiRes qw/gettimeofday tv_interval/;
 sub sec_to_hms;
@@ -34,7 +31,7 @@ for my $line (@input) {
 }
 my $step    = 1;
 my @initial = split( "", $template );
-my $LIMIT = 10;
+my $LIMIT   = 10;
 while ( $step <= $LIMIT ) {
     my @next;
     my $idx = 0;
@@ -50,8 +47,6 @@ while ( $step <= $LIMIT ) {
         }
     }
     push @next, $initial[-1];
-#    printf "%2d: ", $step;
-#    compare( \@initial, \@next );
     @initial = @next;
 
     $step++;
@@ -79,5 +74,3 @@ sub sec_to_hms {
         $s % 60, $s * 1000
     );
 }
-
-
