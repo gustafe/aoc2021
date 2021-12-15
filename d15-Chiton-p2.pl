@@ -77,23 +77,24 @@ while ( $pq->peek ) {
 
     # try to move
     for my $d ( [ -1, 0 ], [ 0, -1 ], [ 1, 0 ], [ 0, 1 ] ) {
-        my $dr        = $cur->[0] + $d->[0];
-        my $dc        = $cur->[1] + $d->[1];
+        my $dr = $cur->[0] + $d->[0];
+        my $dc = $cur->[1] + $d->[1];
         next unless exists $Map->{$dr}{$dc};
-        my $cur_cost = $cost_so_far->{ $cur->[0] }{ $cur->[1] };
-        my $new_cost = $cur_cost + $Map->{$dr}{$dc};
+
+        my $new_cost
+            = $cost_so_far->{ $cur->[0] }{ $cur->[1] } + $Map->{$dr}{$dc};
 
         if ( !exists $cost_so_far->{$dr}{$dc}
             or $new_cost < $cost_so_far->{$dr}{$dc} )
         {
             $cost_so_far->{$dr}{$dc} = $new_cost;
-	    $pq->add( [ $dr, $dc ], $new_cost);
+            $pq->add( [ $dr, $dc ], $new_cost );
         }
     }
 }
 
 ### FINALIZE - tests and run time
-is($ans{2}, 2800, "Part 2: ".$ans{2});
+is( $ans{2}, 2800, "Part 2: " . $ans{2} );
 done_testing();
 say sec_to_hms( tv_interval($start_time) );
 
