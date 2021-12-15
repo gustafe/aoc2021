@@ -65,7 +65,6 @@ my $pq   = Array::Heap::PriorityQueue::Numeric->new();
 $pq->add( [ 0, 0 ], 0 );
 my $came_from;
 my $cost_so_far;
-$came_from->{0}{0}   = undef;
 $cost_so_far->{0}{0} = 0;
 SEARCH:
 
@@ -90,7 +89,6 @@ while ( $pq->peek ) {
         {
             $cost_so_far->{$dr}{$dc} = $new_cost;
             $pq->add( [ $dr, $dc ], $new_cost + $manhattan );
-            $came_from->{$dr}{$dc} = $cur;
         }
     }
 }
