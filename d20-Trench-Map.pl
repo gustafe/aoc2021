@@ -7,7 +7,6 @@
 use Modern::Perl '2015';
 # useful modules
 use List::Util qw/sum min max/;
-use Clone qw/clone/;
 use Test::More;
 use Time::HiRes qw/gettimeofday tv_interval/;
 sub sec_to_hms;
@@ -84,7 +83,7 @@ for my $N ( 1 .. 50 ) {
         }
 
     }
-    $Map = clone $newM;
+    $Map = $newM;
     $ans{1} = count_map if $N == 2;
 }
 $ans{2} = count_map;
