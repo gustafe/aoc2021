@@ -22,11 +22,13 @@ while (<$fh>) { chomp; s/\r//gm; push @input, $_; }
 
 ### CODE
 
-=pod
+=pod 
 
 For the solution, I followed the excellent explanation here:
 
 L<https://github.com/dphilipson/advent-of-code-2021/blob/master/src/days/day24.rs>
+
+(via comment L<https://www.reddit.com/r/adventofcode/comments/rnejv5/2021_day_24_solutions/hps7skz/> by /u/snakebehindme)
 
 As per the explanation, my values for {DIV}, {VALUE} and {OFFSET} were
 
