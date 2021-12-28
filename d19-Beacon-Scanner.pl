@@ -72,13 +72,17 @@ while (@check) {
         $seen->{$s1}{$s2}++; $seen->{$s2}{$s1}++;
 
         say "comp $s1 $s2" if $debug;
+
+	# generate all 24 possible rotations for each vector
         my $rotations;
         for my $v ( @{ $data{$s2} } ) {
             push @$rotations, rotate_vec($v);
         }
 
         my $matches;
-
+	# compare each rotation to the vector in the "known" set,
+	# taking differences for each axis
+	
         for my $R (@$rotations) {
             my $rot = 0;
             for my $c (@$R) {
@@ -90,6 +94,11 @@ while (@check) {
                 $rot++;
             }
         }
+	# if there is an overlap, there should be a "spike" of
+	# matching differences, and the rotation that has these
+	# differences in all three axes is the one we want. The
+	# differences are the x,y,z offsets for the scanner
+	
         my $summary;
         for my $rot ( sort { $a <=> $b } keys %{$matches} ) {
             for my $axis (qw/x y z/) {
@@ -108,6 +117,11 @@ while (@check) {
         next unless $sought;
 
         say "$s2 <-> $s1: $sought" if $debug;
+
+	# transform the coordinates in the current set to the correct
+	# offset and orientation, and push it to the array of
+	# corrected sets to compare to others
+	
         my $rotated;
         for my $v (@$rotations) {
             push @$rotated, $v->[$sought];
@@ -128,6 +142,7 @@ while (@check) {
 
     }
 }
+# gather all corrected beacons and count them
 my %all_beacons;
 for my $sc (@res) {
 
@@ -138,7 +153,7 @@ for my $sc (@res) {
 
     }
 }
-
+# calculate Manhattan distance between scanners
 my $max_dist = 0;
 sub manhattan;
 for my $set1 (@res) {
