@@ -68,21 +68,26 @@ while (@check) {
     push @res, $next;
     for my $s2 ( sort { $a <=> $b } keys %data ) {
         next if $s1 == $s2;
-        next if $seen->{$s1}{$s2} or $seen->{$s2}{$s1};
-        $seen->{$s1}{$s2}++; $seen->{$s2}{$s1}++;
+        if ( $seen->{$s1}{$s2} or $seen->{$s2}{$s1} ) {
+            say "$s1 and $s2 have been compared, skipping" if $debug;
+            next;
+        }
+        $seen->{$s1}{$s2}++;
+        $seen->{$s2}{$s1}++;
 
-        say "comp $s1 $s2" if $debug;
+        say "comp $s1 $s2";
 
-	# generate all 24 possible rotations for each vector
+        # generate all 24 possible rotations for each vector
         my $rotations;
         for my $v ( @{ $data{$s2} } ) {
             push @$rotations, rotate_vec($v);
         }
 
         my $matches;
-	# compare each rotation to the vector in the "known" set,
-	# taking differences for each axis
-	
+
+        # compare each rotation to the vector in the "known" set,
+        # taking differences for each axis
+
         for my $R (@$rotations) {
             my $rot = 0;
             for my $c (@$R) {
@@ -94,11 +99,12 @@ while (@check) {
                 $rot++;
             }
         }
-	# if there is an overlap, there should be a "spike" of
-	# matching differences, and the rotation that has these
-	# differences in all three axes is the one we want. The
-	# differences are the x,y,z offsets for the scanner
-	
+
+        # if there is an overlap, there should be a "spike" of
+        # matching differences, and the rotation that has these
+        # differences in all three axes is the one we want. The
+        # differences are the x,y,z offsets for the scanner
+
         my $summary;
         for my $rot ( sort { $a <=> $b } keys %{$matches} ) {
             for my $axis (qw/x y z/) {
@@ -109,39 +115,41 @@ while (@check) {
                 }
             }
         }
-        dump $summary if $debug;
+
+        #        dump $summary if $debug;
 
         my ($sought) = grep {
-            $summary->{$_}{x} and $summary->{$_}{y} and $summary->{$_}{z}
+                    $summary->{$_}{x}
+                and $summary->{$_}{y}
+                and $summary->{$_}{z}
         } keys %$summary;
-        next unless $sought;
+        if ( !$sought ) {
+            say "no match, skipping to next" if $debug;
+            next;
+        }
 
         say "$s2 <-> $s1: $sought" if $debug;
 
-	# transform the coordinates in the current set to the correct
-	# offset and orientation, and push it to the array of
-	# corrected sets to compare to others
-	
+        # transform the coordinates in the current set to the correct
+        # offset and orientation, and push it to the array of
+        # corrected sets to compare to others
+
         my $rotated;
         for my $v (@$rotations) {
-            push @$rotated, $v->[$sought];
+            push @$rotated,
+                [
+                $v->[$sought][0] + $summary->{$sought}{x},
+                $v->[$sought][1] + $summary->{$sought}{y},
+                $v->[$sought][2] + $summary->{$sought}{z}
+                ];
         }
         my $scanner_pos
             = join( ',', map { $summary->{$sought}{$_} } qw/x y z/ );
-        my $rot_and_shift;
-        for my $coord (@$rotated) {
-            push @$rot_and_shift,
-                [
-                $coord->[0] + $summary->{$sought}->{x},
-                $coord->[1] + $summary->{$sought}->{y},
-                $coord->[2] + $summary->{$sought}->{z}
-                ];
-        }
-        push @check,
-            { id => $s2, beacons => $rot_and_shift, pos => $scanner_pos };
+        push @check, { id => $s2, beacons => $rotated, pos => $scanner_pos };
 
     }
 }
+
 # gather all corrected beacons and count them
 my %all_beacons;
 for my $sc (@res) {
@@ -153,6 +161,7 @@ for my $sc (@res) {
 
     }
 }
+
 # calculate Manhattan distance between scanners
 my $max_dist = 0;
 sub manhattan;
@@ -165,7 +174,7 @@ for my $set1 (@res) {
 }
 
 ### FINALIZE - tests and run time
-is( scalar keys %all_beacons,   315, "Part 1: " . scalar keys %all_beacons );
+is( scalar keys %all_beacons, 315,   "Part 1: " . scalar keys %all_beacons );
 is( $max_dist,                13192, "Part 2: $max_dist" );
 done_testing();
 say sec_to_hms( tv_interval($start_time) );
@@ -175,10 +184,7 @@ sub sec_to_hms {
     my ($s) = @_;
     return sprintf(
         "Duration: %02dh%02dm%02ds (%.3f ms)",
-        int( $s / ( 60 * 60 ) ),
-        ( $s / 60 ) % 60,
-        $s % 60, $s * 1000
-    );
+        int( $s / ( 60 * 60 ) ), ( $s / 60 ) % 60, $s % 60, $s * 1000 );
 }
 
 sub rotate_vec {    # given a 3 element arrayref, return all 24 rotations
@@ -187,12 +193,8 @@ sub rotate_vec {    # given a 3 element arrayref, return all 24 rotations
     for my $m (@$transforms) {
         push @$res,
             [
-            $m->[0][0] * $v->[0]
-                + $m->[0][1] * $v->[1]
-                + $m->[0][2] * $v->[2],
-            $m->[1][0] * $v->[0]
-                + $m->[1][1] * $v->[1]
-                + $m->[1][2] * $v->[2],
+            $m->[0][0] * $v->[0] + $m->[0][1] * $v->[1] + $m->[0][2] * $v->[2],
+            $m->[1][0] * $v->[0] + $m->[1][1] * $v->[1] + $m->[1][2] * $v->[2],
             $m->[2][0] * $v->[0] + $m->[2][1] * $v->[1] + $m->[2][2] * $v->[2]
             ];
     }
