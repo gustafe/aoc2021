@@ -152,7 +152,6 @@ sub reduce {
             $res = explode($snf);
             if ($res) {
                 $snf = $res;
-
                 push @stack, 'exp';
             }
             dump_snf($snf) if $debug;
